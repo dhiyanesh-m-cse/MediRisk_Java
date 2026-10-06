@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediRisk AI — Health Assessment History</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-logo">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">MEDI<span>RISK</span></div>
+        <div class="brand-subtitle">PATIENT INTELLIGENCE</div>
+      </div>
+    </div>
+    <div class="user-badge">
+      <span style="color: #10B981;">●</span> <span id="userName">User</span>
+    </div>
+  </header>
+
+  <!-- Container -->
+  <main class="container">
+    <div style="margin-bottom: 20px;">
+      <h2 class="font-display" style="font-size: 1.5rem; font-weight: 700;">Assessment History</h2>
+      <p style="font-size: 0.8rem; color: var(--text-subtle); margin-top: 4px;">
+        Saved records retrieved directly from Core Java file database (<code style="color: var(--cyan-accent);">assessments.txt</code>)
+      </p>
+    </div>
+
+    <!-- Search / Filter Input -->
+    <div class="form-group">
+      <input type="text" id="searchHistoryInput" class="form-input" placeholder="🔍 Search records by patient name or risk level...">
+    </div>
+
+    <!-- History Records List Container -->
+    <div id="historyListContainer">
+      <div class="card" style="text-align: center; padding: 40px 20px;">
+        <p style="color: var(--text-subtle); font-size: 0.9rem;">Loading records from Java file database...</p>
+      </div>
+    </div>
+
+    <!-- Assessment Detail Modal -->
+    <div id="detailModal" class="card" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 500px; z-index: 2000; box-shadow: 0 20px 50px rgba(0,0,0,0.8); max-height: 85vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 16px;">
+        <div>
+          <span style="font-size: 0.65rem; color: var(--text-subtle);">ASSESSMENT RECORD</span>
+          <h3 id="modalId" class="font-mono" style="font-size: 1.1rem; color: var(--cyan-accent);">A001</h3>
+        </div>
+        <button onclick="closeModal()" class="btn-secondary" style="width: auto; padding: 4px 10px; font-size: 0.8rem;">✕ Close</button>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 16px;">
+        <div id="modalScore" class="score-number font-display">72</div>
+        <span id="modalRiskBadge" class="risk-badge HIGH">HIGH</span>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 12px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 16px; color: var(--text-dim);">
+        <strong>Recommendation:</strong> <span id="modalRecommendation">--</span>
+      </div>
+
+      <div class="vitals-grid" style="margin-bottom: 16px;">
+        <div class="vital-card">
+          <div class="vital-label">Patient Name</div>
+          <div id="modalPatient" class="vital-value" style="font-size: 0.9rem;">--</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">Date & Time</div>
+          <div id="modalDateTime" class="vital-value" style="font-size: 0.8rem; font-family: monospace;">--</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">Heart Rate</div>
+          <div id="modalHR" class="vital-value">--</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">Blood Pressure</div>
+          <div id="modalBP" class="vital-value">--</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">Oxygen ($SpO_2$)</div>
+          <div id="modalO2" class="vital-value">--</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">Temperature</div>
+          <div id="modalTemp" class="vital-value">--</div>
+        </div>
+      </div>
+
+      <button id="modalDeleteBtn" class="btn-secondary" style="background: rgba(239,68,68,0.15); color: #EF4444; border-color: rgba(239,68,68,0.3);">
+        🗑️ Delete Record from Java File Database
+      </button>
+    </div>
+    <div id="modalBackdrop" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1999;" onclick="closeModal()"></div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="/dashboard.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Dashboard
+    </a>
+    <a href="/assessment.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Assess
+    </a>
+    <a href="/history.html" class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      History
+    </a>
+    <a href="/reports.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Reports
+    </a>
+  </nav>
+
+  <script src="/js/api.js"></script>
+  <script>
+    const user = UserSession.requireAuth();
+    document.getElementById('userName').innerText = user.name || user.username;
+
+    let allAssessments = [];
+
+    async function loadHistory() {
+      const container = document.getElementById('historyListContainer');
+      try {
+        const res = await MediRiskAPI.getAssessments();
+        allAssessments = res.data || [];
+        renderHistory(allAssessments);
+      } catch (err) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; color: var(--red-glow); padding: 30px;">
+            <p>✖ ${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderHistory(list) {
+      const container = document.getElementById('historyListContainer');
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; padding: 40px 20px;">
+            <p style="color: var(--text-subtle); font-size: 0.9rem;">No assessment records found.</p>
+            <a href="/assessment.html" class="btn-primary" style="display: inline-block; width: auto; margin-top: 12px; text-decoration: none; padding: 10px 20px;">Run First Assessment</a>
+          </div>
+        `;
+        return;
+      }
+
+      // Render items in reverse chronological order
+      let html = '';
+      [...list].reverse().forEach(item => {
+        const scoreColor = item.riskLevel === 'LOW' ? '#10B981' : item.riskLevel === 'MODERATE' ? '#F59E0B' : '#EF4444';
+        html += `
+          <div class="card" style="cursor: pointer;" onclick="openDetail('${item.assessmentId}')">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-white);">${item.patientName}</div>
+                <div style="font-size: 0.75rem; color: var(--text-subtle); margin-top: 4px;">
+                  ID: <span class="font-mono">${item.assessmentId}</span> • ${item.date} ${item.time}
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div class="font-display" style="font-size: 1.6rem; font-weight: 800; color: ${scoreColor};">${item.riskScore}</div>
+                <span class="risk-badge ${item.riskLevel}">${item.riskLevel}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    // Search filtering
+    document.getElementById('searchHistoryInput').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const filtered = allAssessments.filter(item => 
+        item.patientName.toLowerCase().includes(query) ||
+        item.riskLevel.toLowerCase().includes(query) ||
+        item.assessmentId.toLowerCase().includes(query)
+      );
+      renderHistory(filtered);
+    });
+
+    // Modal Details
+    let selectedId = null;
+    function openDetail(id) {
+      const item = allAssessments.find(a => a.assessmentId === id);
+      if (!item) return;
+
+      selectedId = id;
+      document.getElementById('modalId').innerText = item.assessmentId;
+      document.getElementById('modalScore').innerText = item.riskScore;
+      document.getElementById('modalScore').style.color = item.riskLevel === 'LOW' ? '#10B981' : item.riskLevel === 'MODERATE' ? '#F59E0B' : '#EF4444';
+
+      const badge = document.getElementById('modalRiskBadge');
+      badge.innerText = item.riskLevel;
+      badge.className = `risk-badge ${item.riskLevel}`;
+
+      document.getElementById('modalRecommendation').innerText = item.recommendation;
+      document.getElementById('modalPatient').innerText = item.patientName;
+      document.getElementById('modalDateTime').innerText = `${item.date} ${item.time}`;
+      document.getElementById('modalHR').innerText = `${item.vitals ? item.vitals.heartRate : '--'} bpm`;
+      document.getElementById('modalBP').innerText = `${item.vitals ? item.vitals.systolicBP + '/' + item.vitals.diastolicBP : '--'} mmHg`;
+      document.getElementById('modalO2').innerText = `${item.vitals ? item.vitals.oxygenLevel : '--'}%`;
+      document.getElementById('modalTemp').innerText = `${item.vitals ? item.vitals.temperature : '--'} °C`;
+
+      document.getElementById('detailModal').style.display = 'block';
+      document.getElementById('modalBackdrop').style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').style.display = 'none';
+      document.getElementById('modalBackdrop').style.display = 'none';
+      selectedId = null;
+    }
+
+    // Delete Record
+    document.getElementById('modalDeleteBtn').addEventListener('click', async () => {
+      if (!selectedId) return;
+      if (!confirm(`Delete assessment ${selectedId} from Java file database?`)) return;
+
+      try {
+        const res = await MediRiskAPI.deleteAssessment(selectedId);
+        if (res.success) {
+          showToast('Record deleted from assessments.txt', 'success');
+          closeModal();
+          loadHistory();
+        } else {
+          showToast(res.error || 'Delete failed', 'error');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    loadHistory();
+  </script>
+</body>
+</html>
+

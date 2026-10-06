@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediRisk AI — Patient Monitor Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-logo">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">MEDI<span>RISK</span></div>
+        <div class="brand-subtitle">PATIENT INTELLIGENCE</div>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div class="user-badge" id="userBadge">
+        <span style="color: #10B981;">●</span> <span id="userName">User</span>
+      </div>
+      <button onclick="UserSession.logout()" class="btn-secondary" style="padding: 6px 12px; font-size: 0.75rem;">Logout</button>
+    </div>
+  </header>
+
+  <!-- Container -->
+  <main class="container">
+    <!-- Greeting & Status -->
+    <div style="margin-bottom: 20px;">
+      <p id="greetingText" style="font-size: 0.8rem; color: var(--text-subtle);">Good day</p>
+      <h2 id="patientHeaderName" class="font-display" style="font-size: 1.6rem; font-weight: 700; margin-top: 2px;">
+        Alexandra Reed<span style="color: var(--red-glow);">.</span>
+      </h2>
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981;"></span>
+        <span style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; color: rgba(16, 185, 129, 0.8); text-transform: uppercase;">MONITOR CHANNEL ACTIVE</span>
+      </div>
+    </div>
+
+    <!-- Live ECG-Style Heartbeat Trace Card -->
+    <div class="card" style="border-color: rgba(239,68,68,0.25); background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(255,255,255,0.01));">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <span style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--red-glow);">LIVE ECG-STYLE TRACE</span>
+        </div>
+        <span id="liveTimestamp" class="font-mono" style="font-size: 0.7rem; color: var(--text-subtle);">--:--</span>
+      </div>
+      <div class="ecg-container">
+        <canvas id="ecgCanvas" width="500" height="70" style="width: 100%; height: 70px;"></canvas>
+      </div>
+      <p style="font-size: 0.65rem; color: var(--text-subtle); margin-top: 8px; text-align: right;">
+        Simulated heartbeat waveform driven by pulse parameter (bpm)
+      </p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+      <a href="/assessment.html" class="btn-primary" style="text-decoration: none; text-align: center; display: block;">
+        + Run Risk Assessment
+      </a>
+      <a href="/reports.html" class="btn-secondary" style="text-decoration: none; text-align: center; display: block;">
+        📁 Health Records
+      </a>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="vitals-grid" style="margin-bottom: 20px;">
+      <div class="vital-card">
+        <div class="vital-label">Saved Assessments</div>
+        <div class="vital-value" id="statAssessmentsCount">0</div>
+        <div style="font-size: 0.65rem; color: var(--text-subtle); margin-top: 4px;">Persisted in Java text file</div>
+      </div>
+      <div class="vital-card">
+        <div class="vital-label">Registered Patients</div>
+        <div class="vital-value" id="statPatientsCount">0</div>
+        <div style="font-size: 0.65rem; color: var(--text-subtle); margin-top: 4px;">Registered patient profiles</div>
+      </div>
+    </div>
+
+    <!-- Latest Assessment Result Card -->
+    <div class="card" id="latestAssessmentCard">
+      <div class="card-title">
+        <span>LATEST ASSESSMENT RESULT</span>
+        <span class="risk-badge LOW" id="latestRiskBadge">LOW</span>
+      </div>
+      <div id="latestAssessmentContent" style="text-align: center; padding: 10px 0;">
+        <p style="color: var(--text-subtle); font-size: 0.85rem;">Loading records from Java backend...</p>
+      </div>
+    </div>
+
+    <!-- Academic Disclaimer -->
+    <div style="text-align: center; padding: 10px 0; color: var(--text-subtle); font-size: 0.7rem; line-height: 1.5;">
+      💡 Academic Prototype: MediRisk AI evaluates physiological vital signs using weighted standard logic executed by the Core Java backend engine.
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="/dashboard.html" class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Dashboard
+    </a>
+    <a href="/assessment.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Assess
+    </a>
+    <a href="/history.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      History
+    </a>
+    <a href="/reports.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Reports
+    </a>
+  </nav>
+
+  <script src="/js/api.js"></script>
+  <script>
+    const user = UserSession.requireAuth();
+    document.getElementById('userName').innerText = user.name || user.username;
+    document.getElementById('patientHeaderName').innerText = user.name || user.username;
+
+    // Greeting
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('greetingText').innerText = `${greeting},`;
+
+    // Timestamp
+    function updateTimestamp() {
+      const now = new Date();
+      document.getElementById('liveTimestamp').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    setInterval(updateTimestamp, 1000);
+    updateTimestamp();
+
+    // ECG Canvas Animation
+    const canvas = document.getElementById('ecgCanvas');
+    const ctx = canvas.getContext('2d');
+    let offset = 0;
+    let currentBpm = 72;
+
+    function drawECG() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#EF4444';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#EF4444';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+
+      const cycleLength = canvas.width / (currentBpm / 20);
+      const height = canvas.height;
+
+      for (let x = 0; x < canvas.width; x++) {
+        const t = ((x + offset) % cycleLength) / cycleLength;
+        let y = height / 2;
+
+        if (t > 0.15 && t < 0.25) y -= 4 * Math.sin((t - 0.15) / 0.1 * Math.PI); // P wave
+        else if (t > 0.30 && t < 0.35) y += 5 * Math.sin((t - 0.30) / 0.05 * Math.PI); // Q wave
+        else if (t > 0.33 && t < 0.42) y -= 24 * Math.sin((t - 0.33) / 0.09 * Math.PI); // R spike
+        else if (t > 0.42 && t < 0.48) y += 8 * Math.sin((t - 0.42) / 0.06 * Math.PI); // S wave
+        else if (t > 0.55 && t < 0.70) y -= 6 * Math.sin((t - 0.55) / 0.15 * Math.PI); // T wave
+
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      offset += currentBpm * 0.04;
+      requestAnimationFrame(drawECG);
+    }
+    drawECG();
+
+    // Load Real Backend Data from Core Java
+    async function loadDashboardData() {
+      try {
+        const [assessRes, patients] = await Promise.all([
+          MediRiskAPI.getAssessments(),
+          MediRiskAPI.getPatients()
+        ]);
+
+        const assessments = assessRes.data || [];
+        document.getElementById('statAssessmentsCount').innerText = assessments.length;
+        document.getElementById('statPatientsCount').innerText = Array.isArray(patients) ? patients.length : 0;
+
+        const latestCard = document.getElementById('latestAssessmentContent');
+        const latestBadge = document.getElementById('latestRiskBadge');
+
+        if (assessments.length > 0) {
+          const latest = assessments[assessments.length - 1]; // Latest assessment
+          if (latest.vitals && latest.vitals.heartRate) {
+            currentBpm = latest.vitals.heartRate;
+          }
+
+          latestBadge.innerText = latest.riskLevel;
+          latestBadge.className = `risk-badge ${latest.riskLevel}`;
+
+          const scoreColor = latest.riskLevel === 'LOW' ? '#10B981' : latest.riskLevel === 'MODERATE' ? '#F59E0B' : '#EF4444';
+
+          latestCard.innerHTML = `
+            <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 16px;">
+              <div>
+                <div class="score-number font-display" style="color: ${scoreColor}">${latest.riskScore}</div>
+                <div style="font-size: 0.7rem; color: var(--text-subtle); font-weight: 600;">RISK SCORE</div>
+              </div>
+              <div style="text-align: left; font-size: 0.85rem; line-height: 1.6;">
+                <div><strong>Patient:</strong> ${latest.patientName}</div>
+                <div><strong>Date:</strong> ${latest.date} ${latest.time}</div>
+                <div><strong>Heart Rate:</strong> ${latest.vitals ? latest.vitals.heartRate : '--'} bpm</div>
+                <div><strong>Blood Pressure:</strong> ${latest.vitals ? latest.vitals.systolicBP + '/' + latest.vitals.diastolicBP : '--'} mmHg</div>
+              </div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; font-size: 0.8rem; color: var(--text-dim); text-align: left;">
+              <strong>Recommendation:</strong> ${latest.recommendation}
+            </div>
+            <a href="/history.html" class="btn-secondary" style="display: inline-block; margin-top: 14px; text-decoration: none; width: auto; padding: 8px 16px; font-size: 0.8rem;">View Assessment History →</a>
+          `;
+        } else {
+          latestBadge.innerText = 'NO DATA';
+          latestBadge.className = 'risk-badge LOW';
+          latestCard.innerHTML = `
+            <p style="color: var(--text-subtle); font-size: 0.85rem; padding: 10px 0;">No patient assessments saved in file database yet.</p>
+            <a href="/assessment.html" class="btn-primary" style="display: inline-block; text-decoration: none; width: auto; padding: 10px 20px; font-size: 0.85rem; margin-top: 10px;">Run First Assessment</a>
+          `;
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+    loadDashboardData();
+  </script>
+</body>
+</html>
+

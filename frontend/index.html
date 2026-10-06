@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediRisk AI — Sign In</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="container" style="max-width: 420px; padding-top: 60px;">
+    <!-- Logo Header -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <div class="brand-icon" style="width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 16px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <h1 class="brand-title" style="font-size: 1.8rem;">MEDI<span>RISK</span></h1>
+      <p class="brand-subtitle" style="margin-top: 4px;">PATIENT INTELLIGENCE SYSTEM</p>
+    </div>
+
+    <!-- Login / Register Card -->
+    <div class="card" style="box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+      <div style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px;">
+        <button id="tabLoginBtn" class="btn-secondary" style="border: none; border-bottom: 2px solid var(--red-glow); border-radius: 0; background: none; flex: 1; font-weight: 600;">Sign In</button>
+        <button id="tabRegisterBtn" class="btn-secondary" style="border: none; border-bottom: 2px solid transparent; border-radius: 0; background: none; flex: 1; color: var(--text-subtle);">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="loginUsername" class="form-input" placeholder="e.g. dhiyanesh" required value="dhiyanesh">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" required value="password">
+        </div>
+        <button type="submit" id="loginSubmitBtn" class="btn-primary" style="margin-top: 10px;">Sign In to Workspace</button>
+      </form>
+
+      <!-- Register Form (Hidden by default) -->
+      <form id="registerForm" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="regName" class="form-input" placeholder="e.g. Alexandra Reed" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="regUsername" class="form-input" placeholder="Choose a username" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="regPassword" class="form-input" placeholder="Choose a password" required>
+        </div>
+        <button type="submit" id="regSubmitBtn" class="btn-primary" style="margin-top: 10px;">Create Account</button>
+      </form>
+    </div>
+
+    <!-- Server Connection Badge -->
+    <div style="text-align: center; margin-top: 24px;">
+      <span id="serverStatusBadge" class="risk-badge" style="background: rgba(255,255,255,0.04); color: var(--text-subtle); border: 1px solid rgba(255,255,255,0.08);">
+        Checking Core Java Server...
+      </span>
+      <p style="font-size: 0.7rem; color: var(--text-subtle); margin-top: 12px;">
+        Core Java Backend (Port 8080) • File Database Layer
+      </p>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    // Tab switching
+    const tabLoginBtn = document.getElementById('tabLoginBtn');
+    const tabRegisterBtn = document.getElementById('tabRegisterBtn');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    tabLoginBtn.addEventListener('click', () => {
+      tabLoginBtn.style.borderBottomColor = 'var(--red-glow)';
+      tabLoginBtn.style.color = 'var(--text-white)';
+      tabRegisterBtn.style.borderBottomColor = 'transparent';
+      tabRegisterBtn.style.color = 'var(--text-subtle)';
+      loginForm.style.display = 'block';
+      registerForm.style.display = 'none';
+    });
+
+    tabRegisterBtn.addEventListener('click', () => {
+      tabRegisterBtn.style.borderBottomColor = 'var(--red-glow)';
+      tabRegisterBtn.style.color = 'var(--text-white)';
+      tabLoginBtn.style.borderBottomColor = 'transparent';
+      tabLoginBtn.style.color = 'var(--text-subtle)';
+      registerForm.style.display = 'block';
+      loginForm.style.display = 'none';
+    });
+
+    // Login Submission
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      const btn = document.getElementById('loginSubmitBtn');
+      btn.disabled = true;
+      btn.innerText = 'Authenticating...';
+
+      try {
+        const res = await MediRiskAPI.login(username, password);
+        if (res.success && res.user) {
+          UserSession.setUser(res.user);
+          showToast(`Welcome back, ${res.user.name}!`, 'success');
+          setTimeout(() => { window.location.href = '/dashboard.html'; }, 600);
+        } else {
+          showToast(res.error || 'Login failed', 'error');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Sign In to Workspace';
+      }
+    });
+
+    // Register Submission
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value.trim();
+
+      const btn = document.getElementById('regSubmitBtn');
+      btn.disabled = true;
+      btn.innerText = 'Creating account...';
+
+      try {
+        const res = await MediRiskAPI.register(username, password, name);
+        if (res.success && res.user) {
+          UserSession.setUser(res.user);
+          showToast(`Account created! Welcome, ${res.user.name}`, 'success');
+          setTimeout(() => { window.location.href = '/dashboard.html'; }, 600);
+        } else {
+          showToast(res.error || 'Registration failed', 'error');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Create Account';
+      }
+    });
+
+    // Check Java Server Status on Page Load
+    async function checkServer() {
+      const badge = document.getElementById('serverStatusBadge');
+      try {
+        const res = await MediRiskAPI.checkStatus();
+        if (res.status === 'ONLINE') {
+          badge.style.background = 'rgba(16, 185, 129, 0.15)';
+          badge.style.color = '#10B981';
+          badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+          badge.innerText = '● CORE JAVA SERVER ONLINE (PORT 8080)';
+        }
+      } catch (err) {
+        badge.style.background = 'rgba(239, 68, 68, 0.15)';
+        badge.style.color = '#EF4444';
+        badge.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+        badge.innerText = '✖ JAVA SERVER OFFLINE';
+      }
+    }
+    checkServer();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,8 @@
+A001|P001|Dhiyanesh M|21|72|118|78|98|36.6|16|10|LOW|Continue regular monitoring.|2026-10-06|10:15:00
+A002|P002|Alexandra Reed|45|108|145|92|94|38.2|22|65|HIGH|Medical evaluation is recommended.|2026-10-06|14:30:00
+A003|P003|Robert Johnson|68|125|168|102|88|38.8|24|84|CRITICAL|Immediate medical attention is recommended.|2026-10-06|16:45:00
+A83253|P002|Alexandra Reed|45|108|145|92|94|38.2|22|45|MODERATE|Monitor vital signs and consider medical consultation.|2026-10-06|20:59:43
+A20184|P001|Dhiyanesh M|22|115|148|95|93|38.4|22|40|MODERATE|Monitor vital signs and consider medical consultation.|2026-10-06|21:00:20
+A74496|P002|Alexandra Reed|45|108|145|92|94|38.2|22|45|MODERATE|Monitor vital signs and consider medical consultation.|2026-10-06|21:04:34
+A50785|P001|Dhiyanesh M|22|120|150|95|92|38.5|22|40|MODERATE|Monitor vital signs and consider medical consultation.|2026-10-06|21:09:10
+A83254|P002|Alexandra Reed|45|108|145|92|94|38.2|22|44|MODERATE|Monitor vital signs closely and consider scheduling a medical consultation.|2026-10-06|21:26:29

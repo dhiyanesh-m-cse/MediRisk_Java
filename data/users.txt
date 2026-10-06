@@ -1,0 +1,3 @@
+U001|dhiyanesh|password|Dhiyanesh M
+U002|alexandra|password|Alexandra Reed
+U003|doctor_smith|password123|Dr. John Smith

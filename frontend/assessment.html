@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediRisk AI — New Risk Assessment</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-logo">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">MEDI<span>RISK</span></div>
+        <div class="brand-subtitle">PATIENT INTELLIGENCE</div>
+      </div>
+    </div>
+    <div class="user-badge">
+      <span style="color: #10B981;">●</span> <span id="userName">User</span>
+    </div>
+  </header>
+
+  <!-- Container -->
+  <main class="container">
+    <div style="margin-bottom: 20px;">
+      <h2 class="font-display" style="font-size: 1.5rem; font-weight: 700;">Patient Risk Assessment</h2>
+      <p style="font-size: 0.8rem; color: var(--text-subtle); margin-top: 4px;">
+        Physiological vitals evaluation calculated authoritatively by Core Java backend engine
+      </p>
+    </div>
+
+    <!-- Assessment Form View -->
+    <div id="assessmentFormCard" class="card">
+      <form id="assessmentForm">
+        <!-- Patient Record Label -->
+        <div class="form-group">
+          <label class="form-label">Patient Record Name</label>
+          <input type="text" id="patientNameInput" class="form-input" placeholder="e.g. Alexandra Reed" required value="Alexandra Reed">
+        </div>
+
+        <div class="vitals-grid">
+          <!-- Age -->
+          <div class="form-group">
+            <label class="form-label">Age (years)</label>
+            <input type="number" id="ageInput" class="form-input" min="0" max="120" placeholder="e.g. 45" required value="45">
+          </div>
+          <!-- Heart Rate -->
+          <div class="form-group">
+            <label class="form-label">Heart Rate (bpm)</label>
+            <input type="number" id="hrInput" class="form-input" min="30" max="250" placeholder="e.g. 108" required value="108">
+          </div>
+        </div>
+
+        <div class="vitals-grid">
+          <!-- Systolic BP -->
+          <div class="form-group">
+            <label class="form-label">Systolic BP (mmHg)</label>
+            <input type="number" id="sysInput" class="form-input" min="40" max="260" placeholder="e.g. 145" required value="145">
+          </div>
+          <!-- Diastolic BP -->
+          <div class="form-group">
+            <label class="form-label">Diastolic BP (mmHg)</label>
+            <input type="number" id="diaInput" class="form-input" min="20" max="180" placeholder="e.g. 92" required value="92">
+          </div>
+        </div>
+
+        <div class="vitals-grid">
+          <!-- Oxygen Saturation -->
+          <div class="form-group">
+            <label class="form-label">Oxygen Saturation ($SpO_2$ %)</label>
+            <input type="number" id="o2Input" class="form-input" min="50" max="100" placeholder="e.g. 94" required value="94">
+          </div>
+          <!-- Temperature -->
+          <div class="form-group">
+            <label class="form-label">Body Temp (°C)</label>
+            <input type="number" step="0.1" id="tempInput" class="form-input" min="30" max="45" placeholder="e.g. 38.2" required value="38.2">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Respiratory Rate (breaths/min)</label>
+          <input type="number" id="respInput" class="form-input" min="4" max="60" placeholder="e.g. 22" value="22">
+        </div>
+
+        <button type="submit" id="submitAssessmentBtn" class="btn-primary" style="margin-top: 10px;">
+          ⚡ Calculate & Save Risk Assessment
+        </button>
+      </form>
+    </div>
+
+    <!-- Processing Loading Indicator (Hidden initially) -->
+    <div id="loadingCard" class="card" style="display: none; text-align: center; padding: 40px 20px;">
+      <div style="font-size: 2rem; margin-bottom: 12px; animation: spin 1s infinite linear;">⚙️</div>
+      <h3 class="font-display" style="font-size: 1.2rem; font-weight: 700; margin-bottom: 6px;">Processing Assessment...</h3>
+      <p style="font-size: 0.8rem; color: var(--text-subtle);">
+        Launching <code style="color: var(--cyan-accent);">AssessmentThread</code> in Java backend...
+      </p>
+    </div>
+
+    <!-- Risk Result View (Hidden initially) -->
+    <div id="resultCard" class="card" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div>
+          <span style="font-size: 0.65rem; color: var(--text-subtle); letter-spacing: 0.15em; text-transform: uppercase;">ASSESSMENT ID</span>
+          <h3 id="resId" class="font-mono" style="font-size: 1.1rem; color: var(--cyan-accent); margin-top: 2px;">A001</h3>
+        </div>
+        <span id="resRiskBadge" class="risk-badge HIGH">HIGH</span>
+      </div>
+
+      <div class="score-display">
+        <div id="resScore" class="score-number font-display" style="color: var(--red-glow);">65</div>
+        <div style="font-size: 0.75rem; color: var(--text-subtle); font-weight: 600; letter-spacing: 0.1em; margin-top: 4px;">CALCULATED RISK SCORE (0–100)</div>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+        <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-dim); margin-bottom: 4px;">RECOMMENDATION:</div>
+        <div id="resRecommendation" style="font-size: 0.9rem; color: var(--text-white); font-weight: 500;">
+          Medical evaluation is recommended.
+        </div>
+      </div>
+
+      <!-- Vitals Breakdown Grid -->
+      <div class="vitals-grid" style="margin-bottom: 20px;">
+        <div class="vital-card">
+          <div class="vital-label">Patient Name</div>
+          <div class="vital-value" id="resPatientName" style="font-size: 0.95rem;">Alexandra Reed</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">Date & Time</div>
+          <div class="vital-value" id="resTimestamp" style="font-size: 0.8rem; font-family: monospace;">2026-10-06 14:30</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">Heart Rate</div>
+          <div class="vital-value" id="resHR">108 bpm</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">Blood Pressure</div>
+          <div class="vital-value" id="resBP">145/92 mmHg</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">Oxygen Saturation ($SpO_2$)</div>
+          <div class="vital-value" id="resO2">94%</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">Body Temperature</div>
+          <div class="vital-value" id="resTemp">38.2 °C</div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <button id="newAssessmentBtn" class="btn-primary">New Assessment</button>
+        <a href="/history.html" class="btn-secondary" style="text-decoration: none; text-align: center;">View in History →</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="/dashboard.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Dashboard
+    </a>
+    <a href="/assessment.html" class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Assess
+    </a>
+    <a href="/history.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      History
+    </a>
+    <a href="/reports.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Reports
+    </a>
+  </nav>
+
+  <script src="/js/api.js"></script>
+  <script>
+    const user = UserSession.requireAuth();
+    document.getElementById('userName').innerText = user.name || user.username;
+    if (user.name) document.getElementById('patientNameInput').value = user.name;
+
+    const form = document.getElementById('assessmentForm');
+    const formCard = document.getElementById('assessmentFormCard');
+    const loadingCard = document.getElementById('loadingCard');
+    const resultCard = document.getElementById('resultCard');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const patientName = document.getElementById('patientNameInput').value.trim();
+      const age = parseInt(document.getElementById('ageInput').value);
+      const heartRate = parseInt(document.getElementById('hrInput').value);
+      const systolicBP = parseInt(document.getElementById('sysInput').value);
+      const diastolicBP = parseInt(document.getElementById('diaInput').value);
+      const oxygenLevel = parseInt(document.getElementById('o2Input').value);
+      const temperature = parseFloat(document.getElementById('tempInput').value);
+      const respiratoryRate = parseInt(document.getElementById('respInput').value) || 16;
+
+      // Frontend validation check
+      if (diastolicBP >= systolicBP) {
+        showToast('Diastolic BP cannot be equal to or higher than Systolic BP', 'error');
+        return;
+      }
+
+      formCard.style.display = 'none';
+      loadingCard.style.display = 'block';
+
+      try {
+        const payload = {
+          patientId: 'P001',
+          patientName,
+          age,
+          heartRate,
+          systolicBP,
+          diastolicBP,
+          oxygenLevel,
+          temperature,
+          respiratoryRate
+        };
+
+        // Send to Core Java Server
+        const res = await MediRiskAPI.createAssessment(payload);
+
+        if (res.success && res.data) {
+          const data = res.data;
+          document.getElementById('resId').innerText = data.assessmentId;
+          document.getElementById('resScore').innerText = data.riskScore;
+          document.getElementById('resScore').style.color = data.riskLevel === 'LOW' ? '#10B981' : data.riskLevel === 'MODERATE' ? '#F59E0B' : '#EF4444';
+          
+          const badge = document.getElementById('resRiskBadge');
+          badge.innerText = data.riskLevel;
+          badge.className = `risk-badge ${data.riskLevel}`;
+
+          document.getElementById('resRecommendation').innerText = data.recommendation;
+          document.getElementById('resPatientName').innerText = data.patientName;
+          document.getElementById('resTimestamp').innerText = `${data.date} ${data.time}`;
+          document.getElementById('resHR').innerText = `${data.vitals.heartRate} bpm`;
+          document.getElementById('resBP').innerText = `${data.vitals.systolicBP}/${data.vitals.diastolicBP} mmHg`;
+          document.getElementById('resO2').innerText = `${data.vitals.oxygenLevel}%`;
+          document.getElementById('resTemp').innerText = `${data.vitals.temperature} °C`;
+
+          loadingCard.style.display = 'none';
+          resultCard.style.display = 'block';
+          showToast('Assessment successfully saved to Java file database!', 'success');
+        } else {
+          showToast(res.error || 'Assessment failed', 'error');
+          loadingCard.style.display = 'none';
+          formCard.style.display = 'block';
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+        loadingCard.style.display = 'none';
+        formCard.style.display = 'block';
+      }
+    });
+
+    document.getElementById('newAssessmentBtn').addEventListener('click', () => {
+      resultCard.style.display = 'none';
+      formCard.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
+
